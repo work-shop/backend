@@ -15,6 +15,7 @@ class WS_Init_Actions extends WS_Action_Set {
 				'login_head'			=> 'login_css',
 				'admin_head'			=> 'admin_css',
 				'admin_menu'			=> 'all_settings_link',
+                'admin_init'            => 'admin_setup'
 				));
 	}
 
@@ -27,7 +28,7 @@ class WS_Init_Actions extends WS_Action_Set {
 			add_image_size( 'person', 500, 500, false );
 			add_image_size( 'news', 512, 275, true );
 			add_image_size( 'story', 400, 286, true );
-			add_image_size( 'testimonial', 1024, 550, true );	
+			add_image_size( 'testimonial', 1024, 550, true );
 			add_image_size( 'projectslideshow', 1440, 1440, false );
 			add_image_size( 'category', 1680, 600, true );
 			add_image_size( 'hero', 1680, 1050, false );
@@ -231,6 +232,39 @@ class WS_Init_Actions extends WS_Action_Set {
 	/** ADMIN DASHBOARD ASSETS */
 	public function login_css() { wp_enqueue_style( 'login_css', get_template_directory_uri() . '/assets/css/login.css' ); }
 	public function admin_css() { wp_enqueue_style( 'admin_css', get_template_directory_uri() . '/assets/css/admin.css' ); }
+
+    /**
+     * Admin setup registers additional settings on the global options page for us.
+     *
+     * TODO: Need to update the `register_setting` function to take an array in the third parameter – once we're able to update to 4.7.3
+     * That API is not available in 4.6.3
+     */
+    public function admin_setup() {
+        register_setting(
+            'general',
+            'cdn_url'
+        );
+
+        add_settings_field(
+            'cdn_url',
+            'CDN Address (URL)',
+            array( $this, 'render_settings_field' ),
+            'general',
+            'default',
+            array( 'cdn_url', get_option('cdn_url') )
+        );
+    }
+
+    /**
+     * Callback function to render the CDN URL field in the options.
+     *
+     * @param $args array the array of value arguments
+     *
+     */
+    public function render_settings_field( $args ) {
+        echo "<input aria-describedby='cdn-description' name='cdn_url' class='regular-text code' type='text' id='" . $args[0] . "' value='" . $args[1] . "'/>";
+        echo "<p id='cdn-description' class='description'>Input the url of the CDN to use with this site or leave this field blank to bypass the CDN.";
+    }
 
 }
 
